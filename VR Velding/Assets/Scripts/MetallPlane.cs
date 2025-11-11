@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using Valve.VR.InteractionSystem;
 
@@ -43,30 +44,53 @@ public class MetallPlane : MonoBehaviour
                         if (planes[j].transform.position == trig1.transform.position)
                         {
                             Debug.Log("asdadwa");
-                            float scaleX;
-                            if (((trig.transform.position.x - trig.transform.lossyScale.x / 2) - (trig1.transform.position.x + trig1.transform.lossyScale.x / 2))
-                                < (trig.transform.position.x + trig.transform.lossyScale.x / 2) - (trig1.transform.position.x - trig1.transform.lossyScale.x / 2))
-                            {
-                                scaleX = (trig.transform.position.x - trig.transform.lossyScale.x / 2) - (trig1.transform.position.x + trig1.transform.lossyScale.x / 2);
-                            }
-
-                            else scaleX = (trig.transform.position.x + trig.transform.lossyScale.x / 2) - (trig1.transform.position.x - trig1.transform.lossyScale.x / 2);
-                            
-                            float posX;
-                            if (trig.transform.position.x > trig.transform.lossyScale.x)
-                            { posX = trig.transform.position.x - (trig.transform.position.x - trig1.transform.position.x); }
-                            else posX = trig.transform.position.x + (trig1.transform.position.x - trig.transform.position.x);
 
                             ContactPoint point = collision.contacts[0];
 
-                            Debug.Log("fsfsf");
-
                             if (obj == null)
                             {
+                                float scaleX;
+                                if (((trig.transform.position.x - trig.transform.lossyScale.x / 2) - (trig1.transform.position.x + trig1.transform.lossyScale.x / 2))
+                                    < (trig.transform.position.x + trig.transform.lossyScale.x / 2) - (trig1.transform.position.x - trig1.transform.lossyScale.x / 2))
+                                {
+                                    scaleX = (trig.transform.position.x - trig.transform.lossyScale.x / 2) - (trig1.transform.position.x + trig1.transform.lossyScale.x / 2);
+                                }
+
+                                else scaleX = (trig.transform.position.x + trig.transform.lossyScale.x / 2) - (trig1.transform.position.x - trig1.transform.lossyScale.x / 2);
+
+                                float posX;
+                                if (trig.transform.position.x > trig1.transform.position.x)
+                                { posX = trig.transform.position.x - (trig.transform.position.x - trig1.transform.position.x) / 2; }
+                                else posX = trig.transform.position.x + (trig1.transform.position.x - trig.transform.position.x) / 2;
+
+                                Debug.Log("fsfsf");
+
                                 obj = Instantiate(pref, new Vector3(posX, gameObject.transform.position.y, point.point.z), Quaternion.identity);
+                                obj.transform.localScale = new Vector3(scaleX, obj.transform.lossyScale.y, obj.transform.lossyScale.z);
                             }
-                            else { obj.transform.localScale = new Vector3(scaleX, obj.transform.lossyScale.y, obj.transform.lossyScale.z);}
-                                gameObject.transform.localScale = new Vector3(scaleX, 1, 2);
+                            else 
+                            { 
+                                    if (obj.transform.position.z > point.point.z)
+                                    {
+                                        float oldPosZ = obj.transform.position.z;
+
+                                        obj.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y,
+                                            point.point.z + ((obj.transform.position.z + obj.transform.lossyScale.z / 2) - point.point.z) / 2);
+
+                                        obj.transform.localScale = new Vector3(obj.transform.lossyScale.x, obj.transform.lossyScale.y,
+                                            oldPosZ + obj.transform.lossyScale.z / 2 - point.point.z);
+                                    }
+                                    else
+                                    {
+                                        float oldPosZ = obj.transform.position.z;
+
+                                        obj.transform.position = new Vector3(obj.transform.position.x, obj.transform.position.y,
+                                            point.point.z - (point.point.z - (obj.transform.position.z - obj.transform.lossyScale.z / 2)) / 2);
+
+                                        obj.transform.localScale = new Vector3(obj.transform.lossyScale.x, obj.transform.lossyScale.y,
+                                            point.point.z - oldPosZ - obj.transform.lossyScale.z / 2);
+                                    }
+                            }
                         }
                     }
                 }
